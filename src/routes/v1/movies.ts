@@ -8,8 +8,6 @@ import { isValidationError, parseMoviesQuerySchema, validateNewMovie } from '../
 export const router = express.Router()
 const upload = multer({ storage: multer.memoryStorage() })
 
-router.use(express.json())
-
 
 router.get('/', async (req, res) => {
     try {

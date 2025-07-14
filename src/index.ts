@@ -1,20 +1,7 @@
 import { app } from './app'
 import { sequelize } from './config/database'
 import { initModels } from './db'
-
-
-function getEnvVar(name: keyof typeof process.env) {
-    const value = process.env[name]
-
-    if (!value) {
-        throw new Error(`Environment variable ${name} is not set`)
-    }
-
-    return value
-}
-
-
-const APP_PORT = getEnvVar('APP_PORT')
+import { APP_PORT } from './config/consts'
 
 
 async function main() {

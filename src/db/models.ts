@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt'
 import { 
     Association, 
     BelongsToManyAddAssociationMixin, 
@@ -85,4 +86,55 @@ export function initActorModel(sequelize: Sequelize) {
             freezeTableName: true
         }
     )
+}
+
+
+export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
+    declare id: CreationOptional<number>
+    declare email: string
+    declare password: string
+    declare createdAt: CreationOptional<Date>
+    declare updatedAt: CreationOptional<Date>
+
+    async validatePassword(password: string): Promise<boolean> {
+        return bcrypt.compare(password, this.password)
+    }
+}
+
+
+export function initUserModel(sequelize: Sequelize) {
+    User.init(
+        {
+            id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+            email: { type: DataTypes.STRING, unique: true, allowNull: false },
+            password: { type: DataTypes.STRING, allowNull: false },
+            createdAt: DataTypes.DATE,
+            updatedAt: DataTypes.DATE
+        },
+        {
+            sequelize,
+            tableName: 'user',
+            modelName: 'User',
+            freezeTableName: true
+        }
+    )
+
+    User.beforeCreate(async (user) => {
+        if (user.changed('password')) {
+            user.password = await hashPassword(user.password)
+        }
+    })
+
+    User.beforeUpdate(async (user) => {
+        if (user.changed('password')) {
+            user.password = await hashPassword(user.password)
+        }
+    })
+}
+
+
+async function hashPassword(plain: string) {
+    const SALT_ROUNDS = 10
+
+    return bcrypt.hash(plain, SALT_ROUNDS)
 }

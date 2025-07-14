@@ -1,5 +1,5 @@
 import { z, ZodError } from 'zod'
-import { NewMovie, MoviesQuery } from './types'
+import { MoviesQuery, NewMovie, SignInRequest, SignUpRequest } from './types'
 
 
 export const isValidationError = (error: any) => error instanceof ZodError
@@ -23,6 +23,18 @@ const moviesQuerySchema = z.object({
 }) satisfies z.ZodType<MoviesQuery>
 
 
+const userSchema = z.object({
+    email: z.email().toLowerCase(),
+    password: z.string()
+})
+
+
+const newUserSchema = userSchema.extend({
+    name: z.string(),
+    confirmPassword: z.string()
+}).refine((val) => val.password === val.confirmPassword) satisfies z.ZodType<SignUpRequest>
+
+
 const moviesSchema = z.array(movieSchema)
 
 
@@ -38,4 +50,13 @@ export function validateNewMovies(movies: NewMovie[]) {
 
 export function parseMoviesQuerySchema(query: object) {
     return moviesQuerySchema.parse(query)
+}
+
+export function validateNewUser(user: SignUpRequest) {
+    return newUserSchema.parse(user)
+}
+
+
+export function validateUser(user: SignInRequest) {
+    return userSchema.parse(user)
 }

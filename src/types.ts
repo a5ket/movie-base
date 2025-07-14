@@ -6,7 +6,7 @@ export interface NewMovie {
 }
 
 
-export type MoviesQuery = {
+export interface MoviesQuery {
     sort: "title" | "id" | "year"
     order: "DESC" | "ASC"
     limit: number
@@ -14,4 +14,16 @@ export type MoviesQuery = {
     actor?: string | undefined
     title?: string | undefined
     search?: string | undefined
+}
+
+
+export interface SignInRequest {
+    email: string
+    password: string
+}
+
+
+export interface SignUpRequest extends SignInRequest {
+    name: string
+    confirmPassword: string
 }

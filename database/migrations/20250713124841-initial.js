@@ -2,7 +2,6 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    // Create movie table
     await queryInterface.createTable('movie', {
       id: {
         type: Sequelize.INTEGER,
@@ -24,7 +23,7 @@ module.exports = {
       },
       createdAt: {
         type: Sequelize.DATE,
-        allowNull: true // your model allows optional createdAt
+        allowNull: true 
       },
       updatedAt: {
         type: Sequelize.DATE,
@@ -32,7 +31,6 @@ module.exports = {
       }
     })
 
-    // Create actor table
     await queryInterface.createTable('actor', {
       id: {
         type: Sequelize.INTEGER,
