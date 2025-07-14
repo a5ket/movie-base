@@ -19,7 +19,7 @@ const APP_PORT = getEnvVar('APP_PORT')
 
 async function main() {
     initModels(sequelize)
-    await sequelize.sync({ force: true })
+    await sequelize.sync()
 
     app.listen(APP_PORT, () => {
         console.log(`Server is listening on port ${APP_PORT}`)

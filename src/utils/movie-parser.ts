@@ -13,7 +13,7 @@ function parseMovieFromTextBlock(block: string) {
 
         const value = rest.join(':').trim()
 
-        switch (key.trim().toLowerCase()){
+        switch (key.trim().toLowerCase()) {
             case 'title':
                 movie.title = value
                 break
@@ -24,12 +24,12 @@ function parseMovieFromTextBlock(block: string) {
                 movie.format = value
                 break
             case 'stars':
-                movie.stars = value.split(',').map(s => s.trim())
+                movie.actors = value.split(',').map(s => s.trim())
                 break
         }
     }
 
-    if (movie.title && movie.year && movie.format && movie.stars) {
+    if (movie.title && movie.year && movie.format && movie.actors) {
         return movie as NewMovie
     }
 
