@@ -3,6 +3,7 @@ import multer from 'multer'
 import { createMovie, createMovies, deleteMovie, getMovie, getMovies, updateMovie } from '../../db/movies'
 import { parseMoviesFromText } from '../../utils/movie-parser'
 import { isValidationError, parseMoviesQuerySchema, validateNewMovie } from '../../validation'
+import { MoviesQuery } from '../../types'
 
 
 export const router = express.Router()
@@ -10,11 +11,22 @@ const upload = multer({ storage: multer.memoryStorage() })
 
 
 router.get('/', async (req, res) => {
+    let query: MoviesQuery
     try {
-        const query = parseMoviesQuerySchema(req.query)
+        query = parseMoviesQuerySchema(req.query)
+    } catch (error) {
+        console.error('Query error', error)
+        return res.status(400).json({
+            error: 'Invalid query parameters',
+            details: isValidationError(error) ? error.issues : undefined,
+            status: 0
+        })
+    }
+
+    try {
         const movies = await getMovies(query)
 
-        res.json({
+        return res.json({
             data: movies,
             meta: {
                 total: movies.length
@@ -22,11 +34,8 @@ router.get('/', async (req, res) => {
             status: 1
         })
     } catch (error) {
-        return res.status(400).json({
-            error: 'Invalid query parameters',
-            details: isValidationError(error) ? error.issues : undefined,
-            status: 0
-        })
+        console.error('Error fetching movies', error)
+        return res.status(500).json({ error: 'Internal server error', status: 0})
     }
 })
 

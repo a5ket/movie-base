@@ -20,7 +20,13 @@ const moviesQuerySchema = z.object({
     order: z.enum(['DESC', 'ASC']).default('ASC'),
     limit: z.coerce.number().int().nonnegative().default(20),
     offset: z.coerce.number().int().nonnegative().default(0)
-}) satisfies z.ZodType<MoviesQuery>
+}).refine(
+    data => !(data.title && data.actor),
+    {
+        message: 'Use "search" instead of combining "title" and "actor".',
+        path: ['title']
+    }
+) satisfies z.ZodType<MoviesQuery>
 
 
 const userSchema = z.object({

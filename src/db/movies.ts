@@ -1,4 +1,4 @@
-import { Transaction } from 'sequelize'
+import { col, fn, Op, Transaction, where } from 'sequelize'
 import { sequelize } from '../config/database'
 import { MoviesQuery, NewMovie } from '../types'
 import { Actor, Movie } from './models'
@@ -55,13 +55,50 @@ export async function getMovie(movieId: number) {
 }
 
 
-export async function getMovies(query: MoviesQuery) { // #TODO implement actor, title, search query params 
-    return Movie.findAll({
+export async function getMovies(query: MoviesQuery) {
+    const options: any = {
         limit: query.limit,
         offset: query.offset,
-        order: [[query.sort, query.order]]
-    })
+        order: [[query.sort, query.order]],
+        where: {},
+        include: []
+    }
+
+    if (query.search) {
+        const search = `%${query.search.toLowerCase()}%`
+
+        options.where = {
+            [Op.or]: [
+                where(fn('lower', col('title')), { [Op.like]: search }),
+            ]
+        }
+
+        options.include.push({
+            model: Actor,
+            as: 'actors',
+            attributes: [],
+            required: false,
+            where: where(fn('lower', col('name')), { [Op.like]: search })
+        })
+    } else {
+        if (query.title) {
+            options.where = where(fn('lower', col('title')), { [Op.like]: `%${query.title.toLowerCase()}%` })
+        }
+
+        if (query.actor) {
+            options.include.push({
+                model: Actor,
+                as: 'actors',
+                attributes: [],
+                required: true,
+                where: where(fn('lower', col('name')), { [Op.like]: `%${query.actor.toLowerCase()}%` })
+            })
+        }
+    }
+
+    return Movie.findAll(options)
 }
+
 
 
 export async function deleteMovie(movieId: number) {
