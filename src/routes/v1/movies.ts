@@ -115,7 +115,7 @@ router.delete('/:id', async (req, res) => {
 })
 
 
-router.post('/import', upload.single('file'), async (req, res) => {
+router.post('/import', upload.single('movies'), async (req, res) => {
     console.log()
 
     if (!req.file) {

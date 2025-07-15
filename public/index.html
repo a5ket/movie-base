@@ -2,16 +2,86 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <title>Movie Base</title>
+  <meta charset="UTF-8" />
+  <title>Movie Upload</title>
 </head>
 
 <body>
   <h1>Upload Movies File</h1>
-  <form action="/api/v1/movies/import" method="POST" enctype="multipart/form-data">
-    <input type="file" name="file" accept=".txt" required />
+
+  <form id="upload-form">
+    <label>
+      Auth Token:
+      <input type="text" id="auth-token" placeholder="Your token here" required />
+    </label>
+    <br /><br />
+    <input type="file" id="file-input" accept=".txt" required />
+    <br /><br />
     <button type="submit">Upload</button>
   </form>
+
+  <section>
+    <h2>Example File Content</h2>
+    <pre>
+Title: Blazing Saddles
+Release Year: 1974
+Format: VHS
+Stars: Mel Brooks, Clevon Little, Harvey Korman, Gene Wilder, Slim Pickens, Madeline Kahn
+
+Title: Casablanca
+Release Year: 1942
+Format: DVD
+Stars: Humphrey Bogart, Ingrid Bergman, Claude Rains, Peter Lorre
+
+Title: Charade
+Release Year: 1953
+Format: DVD
+Stars: Audrey Hepburn, Cary Grant, Walter Matthau, James Coburn, George Kennedy
+
+Title: Cool Hand Luke
+Release Year: 1967
+Format: VHS
+Stars: Paul Newman, George Kennedy, Strother Martin
+    </pre>
+  </section>
+
+  <pre id="result" style="white-space: pre-wrap; background: #f0f0f0; padding: 10px;"></pre>
+
+  <script>
+    document.getElementById('upload-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const token = document.getElementById('auth-token').value.trim();
+      const file = document.getElementById('file-input').files[0];
+      const result = document.getElementById('result');
+
+      if (!token || !file) {
+        return alert('Both token and file are required.');
+      }
+
+      const formData = new FormData();
+      formData.append('movies', file);
+
+      try {
+        const res = await fetch('/api/v1/movies/import', {
+          method: 'POST',
+          headers: {
+            'Authorization': token
+          },
+          body: formData
+        });
+
+        const json = await res.json();
+        const pretty = JSON.stringify(json, null, 2);
+
+        result.textContent = res.ok
+          ? `Upload successful:\n${pretty}`
+          : `Error: ${pretty}`;
+      } catch (err) {
+        result.textContent = `Request failed: ${err.message}`;
+      }
+    });
+  </script>
 </body>
 
 </html>
