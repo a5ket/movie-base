@@ -10,4 +10,4 @@ function getEnvVar(name: keyof typeof process.env) {
 
 
 export const APP_PORT = getEnvVar('APP_PORT')
-export const JWT_SECRET = getEnvVar('JWT_SECRET')
+export const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret'
