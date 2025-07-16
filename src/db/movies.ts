@@ -59,30 +59,41 @@ export async function getMovies(query: MoviesQuery) {
     const options: any = {
         limit: query.limit,
         offset: query.offset,
-        order: [[query.sort, query.order]],
+        order: [],
         where: {},
         include: []
     }
+    
+    options.order.push(
+        ['title', 'format'].includes(query.sort)
+            ? [fn('lower', col(query.sort)), query.order]
+            : [query.sort, query.order]
+    )
 
     if (query.search) {
-        const search = `%${query.search.toLowerCase()}%`
+        const searchTerm = `%${query.search.toLowerCase()}%`
 
-        options.where = {
-            [Op.or]: [
-                where(fn('lower', col('title')), { [Op.like]: search }),
-            ]
-        }
-
+        options.where[Op.or] = [
+            where(fn('lower', col('title')), { [Op.like]: searchTerm }),
+            {
+                '$actors.name$': { [Op.like]: searchTerm }
+            }
+        ]
         options.include.push({
             model: Actor,
             as: 'actors',
             attributes: [],
-            required: false,
-            where: where(fn('lower', col('name')), { [Op.like]: search })
+            required: false
         })
     } else {
         if (query.title) {
-            options.where = where(fn('lower', col('title')), { [Op.like]: `%${query.title.toLowerCase()}%` })
+            options.where = {
+                ...options.where,
+                [Op.and]: [
+                    options.where[Op.and] || {},
+                    where(fn('lower', col('title')), { [Op.like]: `%${query.title.toLowerCase()}%` })
+                ]
+            }
         }
 
         if (query.actor) {
@@ -95,6 +106,8 @@ export async function getMovies(query: MoviesQuery) {
             })
         }
     }
+
+    console.log(options, query)
 
     return Movie.findAll(options)
 }
