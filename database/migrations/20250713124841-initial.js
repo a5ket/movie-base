@@ -23,12 +23,22 @@ module.exports = {
       },
       createdAt: {
         type: Sequelize.DATE,
-        allowNull: true 
+        allowNull: true
       },
       updatedAt: {
         type: Sequelize.DATE,
         allowNull: true
       }
+    })
+
+    await queryInterface.addIndex('movie', {
+      unique: true,
+      fields: [
+        queryInterface.sequelize.fn('lower', queryInterface.sequelize.col('title')),
+        'year',
+        queryInterface.sequelize.fn('lower', queryInterface.sequelize.col('format'))
+      ],
+      name: 'unique_movie_title_year_format'
     })
 
     await queryInterface.createTable('actor', {
@@ -54,6 +64,7 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
+    await queryInterface.removeIndex('movie', 'unique_movie_title_year_format')
     await queryInterface.dropTable('actor')
     await queryInterface.dropTable('movie')
   }

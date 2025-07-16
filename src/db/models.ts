@@ -1,17 +1,17 @@
 import bcrypt from 'bcrypt'
-import { 
-    Association, 
-    BelongsToManyAddAssociationMixin, 
-    BelongsToManyAddAssociationsMixin, 
-    BelongsToManyGetAssociationsMixin, 
-    BelongsToManySetAssociationsMixin, 
-    CreationOptional, 
-    DataTypes, 
-    InferAttributes, 
-    InferCreationAttributes, 
-    Model, 
-    NonAttribute, 
-    Sequelize 
+import {
+    Association,
+    BelongsToManyAddAssociationMixin,
+    BelongsToManyAddAssociationsMixin,
+    BelongsToManyGetAssociationsMixin,
+    BelongsToManySetAssociationsMixin,
+    CreationOptional,
+    DataTypes,
+    InferAttributes,
+    InferCreationAttributes,
+    Model,
+    NonAttribute,
+    Sequelize
 } from 'sequelize'
 
 
@@ -51,7 +51,17 @@ export function initMovieModel(sequelize: Sequelize) {
             sequelize,
             tableName: 'movie',
             modelName: 'Movie',
-            freezeTableName: true
+            freezeTableName: true,
+            indexes: [
+                {
+                    unique: true,
+                    fields: [
+                        sequelize.fn('lower', sequelize.col('title')),
+                        'year',
+                        sequelize.fn('lower', sequelize.col('format'))
+                    ]
+                }
+            ]
         }
     )
 }
@@ -91,6 +101,7 @@ export function initActorModel(sequelize: Sequelize) {
 
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
     declare id: CreationOptional<number>
+    declare name: string
     declare email: string
     declare password: string
     declare createdAt: CreationOptional<Date>
@@ -106,6 +117,7 @@ export function initUserModel(sequelize: Sequelize) {
     User.init(
         {
             id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+            name: { type: DataTypes.STRING, allowNull: false },
             email: { type: DataTypes.STRING, unique: true, allowNull: false },
             password: { type: DataTypes.STRING, allowNull: false },
             createdAt: DataTypes.DATE,
