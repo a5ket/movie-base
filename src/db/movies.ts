@@ -63,7 +63,7 @@ export async function getMovies(query: MoviesQuery) {
         where: {},
         include: []
     }
-    
+
     options.order.push(
         ['title', 'format'].includes(query.sort)
             ? [fn('lower', col(query.sort)), query.order]

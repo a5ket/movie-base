@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
+import { sendInternalError, sendValidationError } from './responses'
 import { verifyToken } from './tokens'
+import { isValidationError } from './validation'
 
 
 export function logginMiddleware(req: Request, res: Response, next: NextFunction) {
@@ -32,4 +34,20 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
     } catch (err) {
         return res.status(401).json({ error: 'Invalid or expired token', status: 0 })
     }
+}
+
+
+export function validationErrorMiddleware(error: unknown, req: Request, res: Response, next: NextFunction) {
+    if (isValidationError(error)) {
+        console.error('Validation error', error.issues)
+        return sendValidationError(res, error)
+    }
+
+    next(error)
+}
+
+
+export function internalErrorMiddleware(error: unknown, req: Request, res: Response) {
+    console.error('Internal server error', error)
+    return sendInternalError(res)
 }

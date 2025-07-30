@@ -8,13 +8,12 @@ async function main() {
     initModels(sequelize)
     await sequelize.sync()
 
-    app.listen(APP_PORT, (error) => { 
+    const server =  app.listen(APP_PORT, (error) => { 
         if (error) {
-            console.error('Error starting server', error)
-            return 
+            throw error
         }
         
-        console.log(`Server is listening on port ${APP_PORT}`)
+        console.log(`Server is listening on ${JSON.stringify(server.address())}`)
     })
 }
 

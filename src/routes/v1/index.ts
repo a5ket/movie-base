@@ -1,8 +1,8 @@
 import express from 'express'
-import { router as usersRouter } from './users'
+import { authMiddleware } from '../../middlewares'
 import { router as moviesRouter } from './movies'
 import { router as sessionsRouter } from './sessions'
-import { authMiddleware } from '../../middlewares'
+import { router as usersRouter } from './users'
 
 
 export const apiRouter = express.Router()
